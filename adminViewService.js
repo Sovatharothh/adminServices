@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Blog = require('./shared/models/Blog');
 const authenticate = require('./shared/middleware/authenticate');
+const User = require('./shared/models/User');
 
 const app = express();
 app.use(express.json());

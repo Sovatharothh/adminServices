@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const User = require('./shared/models/User');
 const Blog = require('./shared/models/Blog');
 const authenticate = require('./shared/middleware/authenticate');
 
