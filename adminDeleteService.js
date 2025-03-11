@@ -14,17 +14,29 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.delete('/blog/admin/delete/:id', authenticate, async (req, res) => {
     try {
+        // Ensure user has admin rights
         if (req.user.role !== 'admin') {
             return res.status(403).json({ status: 403, message: 'Forbidden: Only admins can delete blogs' });
         }
 
-        const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+        // Get and validate the blog ID
+        const blogId = req.params.id.trim();
+        console.log(`Received blogId: ${blogId}`); // Debugging log
 
-        if (!deletedBlog) {
+        if (!mongoose.Types.ObjectId.isValid(blogId)) {
+            return res.status(400).json({ status: 400, message: 'Invalid blog ID format' });
+        }
+
+        // Check if the blog exists
+        const blogExists = await Blog.findById(blogId);
+        if (!blogExists) {
             return res.status(404).json({ status: 404, message: 'Blog not found' });
         }
 
-        res.status(200).json({ status: 200, message: 'Blog deleted' });
+        // Delete the blog
+        await Blog.findByIdAndDelete(blogId);
+
+        res.status(200).json({ status: 200, message: 'Blog deleted successfully' });
 
     } catch (error) {
         console.error("Delete Blog Error:", error);
