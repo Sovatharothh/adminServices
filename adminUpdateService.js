@@ -5,14 +5,12 @@ const User = require('./shared/models/User');
 const Blog = require('./shared/models/Blog');
 const authenticate = require('./shared/middleware/authenticate');
 
-
 const app = express();
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI) 
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Update service is Connected to MongoDB"))
     .catch((err) => console.log("MongoDB connection error:", err));
-
 
 app.put('/blog/update/:id', authenticate, async (req, res) => {
     try {
@@ -26,8 +24,14 @@ app.put('/blog/update/:id', authenticate, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Title and description are required' });
         }
 
+        // Validate the ObjectId before using it in the query
+        const blogId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(blogId)) {
+            return res.status(400).json({ status: 400, message: 'Invalid blog ID format' });
+        }
+
         const updatedBlog = await Blog.findByIdAndUpdate(
-            req.params.id,
+            blogId,
             { title, description, blogImage },
             { new: true, runValidators: true }
         );
