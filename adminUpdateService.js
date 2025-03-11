@@ -24,14 +24,19 @@ app.put('/blog/update/:id', authenticate, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Title and description are required' });
         }
 
-        // Validate the ObjectId before using it in the query
-        const blogId = req.params.id;
+        // Validate and convert blogId
+        const blogId = req.params.id.trim(); // Trim any accidental whitespace
+        console.log(`Received blogId: ${blogId}`); // Debugging log
+
         if (!mongoose.Types.ObjectId.isValid(blogId)) {
             return res.status(400).json({ status: 400, message: 'Invalid blog ID format' });
         }
 
+        // Convert to ObjectId
+        const objectId = new mongoose.Types.ObjectId(blogId);
+
         const updatedBlog = await Blog.findByIdAndUpdate(
-            blogId,
+            objectId,  // Use converted ObjectId
             { title, description, blogImage },
             { new: true, runValidators: true }
         );
